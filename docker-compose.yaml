@@ -1,0 +1,15 @@
+version: "3"
+services:
+  ngrok:
+    image: benwk/ngrok:latest
+    privileged: false
+    restart: always
+    ports:
+      - 4443:4443
+      - '8081'
+    environment:
+      - VIRTUAL_HOST=coder.benwk.io,evonne.coder.benwk.io
+      - LETSENCRYPT_EMAIL=it@benwk.io
+      - LETSENCRYPT_HOST=coder.benwk.io,evonne.coder.benwk.io
+    command: ["/app/ngrok/bin/ngrokd", "-domain=coder.benwk.io", "-httpAddr=:8081"]
+    network_mode: bridge
