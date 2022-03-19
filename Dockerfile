@@ -1,5 +1,4 @@
 FROM golang:1.18-alpine
-#FROM alpine/git
 
 LABEL maintainer="benwk<z@benwk.com>"
 
@@ -10,9 +9,11 @@ RUN mkdir -p /app /app/clients
 RUN apk add --no-cache git make openssl
 RUN go env -w GO111MODULE=auto
 
-ADD build.sh /app
-RUN git clone https://github.com/inconshreveable/ngrok.git --depth=1 ngrok
+ADD *.sh /app
+ADD ./ngrok /app/ngrok
 RUN sh ./build.sh
-EXPOSE 8081
+EXPOSE 4443
+EXPOSE 80
+EXPOSE 443
 VOLUME [ "/app/ngrok" ]
 CMD [ "/app/ngrok/bin/ngrokd"]
