@@ -10,7 +10,7 @@ RUN apk add --no-cache git make openssl
 RUN go env -w GO111MODULE=auto
 
 ADD *.sh /app
-ADD ./ngrok /app/ngrok
+ADD ngrok /app/ngrok
 RUN sh ./build.sh
 EXPOSE 4443
 EXPOSE 80

@@ -21,7 +21,7 @@ jobs:
           build-args: |
             NGROK_DOMAIN=${{ secrets.NGROK_DOMAIN }}
           push: true
-          file: Dockerfile
+          file: ngrok/Dockerfile
           tags: |
             benwk/ngrok:${{ github.run_number }}
             benwk/ngrok:latest

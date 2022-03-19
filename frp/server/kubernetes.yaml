@@ -1,0 +1,114 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    benwk.io/app: frps
+  name: frps
+  namespace: default
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  serviceName: frps
+  selector:
+    matchLabels:
+      benwk.io/app: frps
+  template:
+    metadata:
+      labels:
+        benwk.io/app: frps
+    spec:
+      containers:
+        - name: frps
+          image: snowdreamtech/frps
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 31000
+            - containerPort: 8080
+          volumeMounts:
+            - name: config
+              mountPath: "/etc/frp"
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            defaultMode: 256
+            items:
+              - key: frps.ini
+                path: frps.ini
+            name: frps
+            optional: false
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: frps
+  namespace: default
+spec:
+  ports:
+    - name: http
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    - name: tunnel
+      port: 31000
+      protocol: TCP
+      targetPort: 31000
+  selector:
+    benwk.io/app: frps
+  type: ClusterIP
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frps
+  namespace: default
+data:
+  frps.ini: |-
+    [common]
+    bind_port = 31000
+    token=benwk.io
+    vhost_http_port = 8080
+    log_level = info
+
+---
+
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header X-Forwarded-For "$remote_addr, $server_addr";
+      proxy_set_header  Cookie "";
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/server-snippet: |
+      client_header_buffer_size   1024k;
+      large_client_header_buffers 8 2048k;
+    nginx.ingress.kubernetes.io/ssl-redirect: 'false'
+  name: ingress-frps
+  namespace: default
+spec:
+  rules:
+    - host: frp.benwk.io
+      http:
+        paths:
+          - backend:
+              serviceName: frps
+              servicePort: 8080
+            path: /(.*)
+    - host: '*.frp.benwk.io'
+      http:
+        paths:
+          - backend:
+              serviceName: frps
+              servicePort: 8080
+            path: /(.*)
+  tls:
+    - hosts:
+        - frp.benwk.io
+      secretName: tls-frp-benwk-io

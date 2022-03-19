@@ -1,0 +1,16 @@
+version: "3"
+services:
+  frps:
+    image: snowdreamtech/frps
+    privileged: false
+    restart: always
+    ports:
+      - 31000:31000
+      - '8080'
+    volumes:
+      - /data/dockers/tools/frp/frps.ini:/etc/frp/frps.ini
+    environment:
+      - VIRTUAL_HOST=frps.benwk.io
+      - LETSENCRYPT_EMAIL=it@benwk.io
+      - LETSENCRYPT_HOST=frps.benwk.io
+    network_mode: bridge
