@@ -1,4 +1,4 @@
-FROM golang:1.18-alpine
+FROM golang:1.7.1-alpine
 #FROM alpine/git
 
 LABEL maintainer="benwk<z@benwk.com>"
@@ -6,7 +6,7 @@ LABEL maintainer="benwk<z@benwk.com>"
 ARG NGROK_DOMAIN ${NGROK_DOMAIN}
 
 WORKDIR /app
-RUN mkdir -p /app
+RUN mkdir -p /app /app/clients
 RUN apk add --no-cache git make openssl
 RUN go env -w GO111MODULE=auto
 
