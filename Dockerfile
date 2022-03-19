@@ -8,7 +8,7 @@ ARG NGROK_DOMAIN ${NGROK_DOMAIN}
 WORKDIR /app
 RUN mkdir -p /app /app/clients
 RUN apk add --no-cache git make openssl
-RUN go env -w GO111MODULE=auto
+#RUN go env -w GO111MODULE=auto
 
 ADD build.sh /app
 RUN git clone https://github.com/inconshreveable/ngrok.git --depth=1 ngrok
